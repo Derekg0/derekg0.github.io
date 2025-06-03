@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirrored Text Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the reversed text */
+        .reversed-text {
+            /* Initial font, size, and color will be set by JavaScript based on selections */
+            white-space: pre-wrap; /* Preserves whitespace and wraps text */
+            word-wrap: break-word; /* Breaks long words */
+            line-height: 1.75rem; /* Default line height, can be adjusted with font size */
+            text-align: right; /* Align text to the right for mirroring effect */
+        }
+        /* Styles for printing only the output div */
+        @media print {
+            body > *:not(#outputDiv) {
+                display: none; /* Hide everything except the outputDiv */
+            }
+            #outputDiv {
+                display: block !important; /* Ensure outputDiv is visible */
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border: none;
+                background-color: white;
+                color: black; /* Ensure text is black for printing by default */
+                font-family: 'Inter', sans-serif; /* Use Inter for print */
+                font-size: 16px; /* Default readable font size for print */
+            }
+            /* Ensure the text content itself is styled for print */
+            #outputDiv p {
+                font-family: inherit !important;
+                font-size: inherit !important;
+                color: inherit !important; /* Inherit color from JS for print */
+                text-align: right !important; /* Align text right for print mirroring */
+                white-space: pre-wrap !important;
+                word-wrap: break-word !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl transform transition duration-500 hover:scale-105">
+        <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-8">
+            Reverse Your Text
+        </h1>
+
+        <div class="mb-6">
+            <label for="inputText" class="block text-gray-700 text-lg font-semibold mb-2">
+                Enter your paragraph here:
+            </label>
+            <textarea
+                id="inputText"
+                class="w-full p-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-base resize-y min-h-[150px] shadow-sm"
+                placeholder="Type your paragraph here..."
+                rows="6"
+            ></textarea>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+            <div class="w-full sm:w-1/3">
+                <label for="fontSelect" class="block text-gray-700 text-lg font-semibold mb-2">
+                    Select Font:
+                </label>
+                <select id="fontSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900 shadow-sm">
+                    <option value="Inter, sans-serif">Inter</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="Verdana, sans-serif">Verdana</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="Times New Roman, serif">Times New Roman</option>
+                    <option value="Courier New, monospace">Courier New</option>
+                    <option value="Lucida Sans Unicode, Lucida Grande, sans-serif">Lucida Sans</option>
+                    <option value="Palatino Linotype, Book Antiqua, Palatino, serif">Palatino</option>
+                    <option value="Trebuchet MS, Helvetica, sans-serif">Trebuchet MS</option>
+                    <option value="Impact, Charcoal, sans-serif">Impact</option>
+                    <option value="Comic Sans MS, Comic Sans, cursive">Comic Sans MS</option>
+                </select>
+            </div>
+
+            <div class="w-full sm:w-1/3">
+                <label for="sizeSelect" class="block text-gray-700 text-lg font-semibold mb-2">
+                    Select Size:
+                </label>
+                <select id="sizeSelect" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-900 shadow-sm">
+                    <option value="8px">8px</option>
+                    <option value="10px">10px</option>
+                    <option value="12px">12px</option>
+                    <option value="14px">14px</option>
+                    <option value="16px">16px</option>
+                    <option value="18px">18px</option>
+                    <option value="20px">20px</option>
+                    <option value="24px" selected>24px</option>
+                    <option value="28px">28px</option>
+                    <option value="32px">32px</option>
+                    <option value="36px">36px</option>
+                    <option value="40px">40px</option>
+                    <option value="44px">44px</option>
+                    <option value="48px">48px</option>
+                    <option value="50px">50px</option>
+                </select>
+            </div>
+
+            <div class="w-full sm:w-1/3">
+                <label for="colorInput" class="block text-gray-700 text-lg font-semibold mb-2">
+                    Select Color:
+                </label>
+                <input type="color" id="colorInput" value="#374151"
+                       class="w-full h-12 p-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-sm cursor-pointer">
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+            <button
+                id="reverseButton"
+                class="w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-lg"
+            >
+                Reverse Text
+            </button>
+            <button
+                id="printButton"
+                class="w-full sm:w-1/2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300 shadow-lg"
+            >
+                Print Reversed Output
+            </button>
+        </div>
+
+        <div class="mt-8 pt-6 border-t-2 border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Reversed Output:</h2>
+            <div
+                id="outputDiv"
+                class="bg-gray-50 p-6 rounded-lg border border-gray-200 min-h-[100px] flex items-center justify-center text-center overflow-auto shadow-inner"
+            >
+                <p id="reversedTextContent" class="reversed-text">
+                    Your reversed text will appear here.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to the HTML elements
+        const inputText = document.getElementById('inputText');
+        const reverseButton = document.getElementById('reverseButton');
+        const printButton = document.getElementById('printButton');
+        const reversedTextContent = document.getElementById('reversedTextContent');
+        const fontSelect = document.getElementById('fontSelect');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const colorInput = document.getElementById('colorInput'); // Changed from colorSelect to colorInput
+        const outputDiv = document.getElementById('outputDiv');
+
+        // Function to apply selected styles
+        function applyStyles() {
+            const selectedFont = fontSelect.value;
+            const selectedSize = sizeSelect.value;
+            const selectedColor = colorInput.value; // Get value from color input
+
+            reversedTextContent.style.fontFamily = selectedFont;
+            reversedTextContent.style.fontSize = selectedSize;
+            reversedTextContent.style.color = selectedColor; // Apply selected color
+        }
+
+        // Function to handle printing
+        function printOutput() {
+            const textToPrint = reversedTextContent.textContent;
+            const selectedFont = fontSelect.value;
+            const selectedSize = sizeSelect.value;
+            const selectedColor = colorInput.value; // Get selected color for print
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.open();
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Reversed Text Output</title>
+                    <style>
+                        body { margin: 20px; }
+                        pre {
+                            font-family: ${selectedFont}; /* Apply selected font */
+                            font-size: ${selectedSize};   /* Apply selected size */
+                            color: ${selectedColor}; /* Apply selected color for print */
+                            white-space: pre-wrap; /* Explicitly ensure wrapping */
+                            word-wrap: break-word; /* Break long words */
+                            text-align: right; /* Align text right for mirroring */
+                        }
+                    </style>
+                </head>
+                <body>
+                    <pre>${textToPrint}</pre>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+
+
+        // Add event listeners for button click and select changes
+        reverseButton.addEventListener('click', () => {
+            const originalText = inputText.value;
+
+            const lines = originalText.split('\n');
+            const reversedLines = lines.map(line => line.split('').reverse().join(''));
+            const reversedText = reversedLines.join('\n');
+
+            reversedTextContent.textContent = reversedText;
+            applyStyles();
+
+            if (originalText.trim() === '') {
+                reversedTextContent.textContent = 'Your reversed text will appear here.';
+            }
+        });
+
+        // Add event listener for the new print button
+        printButton.addEventListener('click', printOutput);
+
+        // Apply styles immediately when font, size, or color selection changes
+        fontSelect.addEventListener('change', applyStyles);
+        sizeSelect.addEventListener('change', applyStyles);
+        colorInput.addEventListener('input', applyStyles); // Changed from 'change' to 'input' for real-time updates
+
+        // Initial application of styles when the page loads
+        document.addEventListener('DOMContentLoaded', applyStyles);
+    </script>
+</body>
+</html>
