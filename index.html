@@ -16,29 +16,34 @@
         }
         /* Styles for printing only the output div */
         @media print {
-            body > *:not(#outputDiv) {
-                display: none; /* Hide everything except the outputDiv */
+            /* Hide everything in the body by default */
+            body * {
+                visibility: hidden;
+            }
+            /* Make the outputDiv and its contents visible */
+            #outputDiv, #outputDiv * {
+                visibility: visible;
             }
             #outputDiv {
-                display: block !important; /* Ensure outputDiv is visible */
-                width: 100%;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%; /* Ensure it takes full width for printing */
                 margin: 0;
-                padding: 0;
+                padding: 20px; /* Add some padding for print output */
                 box-shadow: none;
                 border: none;
                 background-color: white;
                 color: black; /* Ensure text is black for printing by default */
-                font-family: 'Inter', sans-serif; /* Use Inter for print */
-                font-size: 16px; /* Default readable font size for print */
             }
-            /* Ensure the text content itself is styled for print */
-            #outputDiv p {
-                font-family: inherit !important;
-                font-size: inherit !important;
-                color: inherit !important; /* Inherit color from JS for print */
-                text-align: right !important; /* Align text right for print mirroring */
+            /* Ensure the text content itself is styled for print within the pre tag */
+            #outputDiv pre {
+                font-family: inherit !important; /* Inherit font from JS */
+                font-size: inherit !important;   /* Inherit size from JS */
+                color: inherit !important; /* Inherit color from JS */
                 white-space: pre-wrap !important;
                 word-wrap: break-word !important;
+                text-align: right !important; /* Align text right for print mirroring */
             }
         }
     </style>
@@ -149,60 +154,27 @@
         const reversedTextContent = document.getElementById('reversedTextContent');
         const fontSelect = document.getElementById('fontSelect');
         const sizeSelect = document.getElementById('sizeSelect');
-        const colorInput = document.getElementById('colorInput'); // Changed from colorSelect to colorInput
+        const colorInput = document.getElementById('colorInput');
         const outputDiv = document.getElementById('outputDiv');
 
         // Function to apply selected styles
         function applyStyles() {
             const selectedFont = fontSelect.value;
             const selectedSize = sizeSelect.value;
-            const selectedColor = colorInput.value; // Get value from color input
+            const selectedColor = colorInput.value;
 
             reversedTextContent.style.fontFamily = selectedFont;
             reversedTextContent.style.fontSize = selectedSize;
-            reversedTextContent.style.color = selectedColor; // Apply selected color
+            reversedTextContent.style.color = selectedColor;
         }
 
         // Function to handle printing
         function printOutput() {
-            const textToPrint = reversedTextContent.textContent;
-            const selectedFont = fontSelect.value;
-            const selectedSize = sizeSelect.value;
-            const selectedColor = colorInput.value; // Get selected color for print
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.open();
-
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Reversed Text Output</title>
-                    <style>
-                        body { margin: 20px; }
-                        pre {
-                            font-family: ${selectedFont}; /* Apply selected font */
-                            font-size: ${selectedSize};   /* Apply selected size */
-                            color: ${selectedColor}; /* Apply selected color for print */
-                            white-space: pre-wrap; /* Explicitly ensure wrapping */
-                            word-wrap: break-word; /* Break long words */
-                            text-align: right; /* Align text right for mirroring */
-                        }
-                    </style>
-                </head>
-                <body>
-                    <pre>${textToPrint}</pre>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-
-            printWindow.onload = function() {
-                printWindow.focus();
-                printWindow.print();
-                printWindow.close();
-            };
+            // Apply current styles to the output text content element before printing
+            applyStyles();
+            // Call the native print dialog
+            window.print();
         }
-
 
         // Add event listeners for button click and select changes
         reverseButton.addEventListener('click', () => {
@@ -226,7 +198,7 @@
         // Apply styles immediately when font, size, or color selection changes
         fontSelect.addEventListener('change', applyStyles);
         sizeSelect.addEventListener('change', applyStyles);
-        colorInput.addEventListener('input', applyStyles); // Changed from 'change' to 'input' for real-time updates
+        colorInput.addEventListener('input', applyStyles);
 
         // Initial application of styles when the page loads
         document.addEventListener('DOMContentLoaded', applyStyles);
