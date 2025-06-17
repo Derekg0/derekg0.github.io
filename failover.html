@@ -101,15 +101,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>Firewall Failover Status</h1>
+        <h1>Firewall Failover Control</h1>
         <div class="firewall-section">
             <div id="fwcolo-a" class="firewall-card active">
                 <img src="fw-a.jpg" alt="Palo Alto Firewall A">
-                <p>FWCOL-A (Active)</p>
+                <p>FWCOLO-A (Active)</p>
             </div>
             <div id="fwcolo-b" class="firewall-card standby">
                 <img src="fw-b.jpg" alt="Palo Alto Firewall B">
-                <p>FWCOL-B (Standby)</p>
+                <p>FWCOLO-B (Standby)</p>
             </div>
         </div>
         <button id="failoverButton">Failover Firewall</button>
@@ -134,19 +134,19 @@
             if (activeFirewall === 'fwcolo-a') {
                 fwcoloA.classList.add('active');
                 fwcoloA.classList.remove('standby');
-                fwcoloA.querySelector('p').textContent = 'FWCOL-A (Active)';
+                fwcoloA.querySelector('p').textContent = 'FWCOLO-A (Active)';
 
                 fwcoloB.classList.add('standby');
                 fwcoloB.classList.remove('active');
-                fwcoloB.querySelector('p').textContent = 'FWCOL-B (Standby)';
+                fwcoloB.querySelector('p').textContent = 'FWCOLO-B (Standby)';
             } else {
                 fwcoloB.classList.add('active');
                 fwcoloB.classList.remove('standby');
-                fwcoloB.querySelector('p').textContent = 'FWCOL-B (Active)';
+                fwcoloB.querySelector('p').textContent = 'FWCOLO-B (Active)';
 
                 fwcoloA.classList.add('standby');
                 fwcoloA.classList.remove('active');
-                fwcoloA.querySelector('p').textContent = 'FWCOL-A (Standby)';
+                fwcoloA.querySelector('p').textContent = 'FWCOLO-A (Standby)';
             }
         }
 
