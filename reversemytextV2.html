@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reverse My Text V2</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-2: #273449;
+            --border: #334155;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 2rem 1rem;
+        }
+
+        main {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin: 0 0 0.75rem;
+            font-weight: 600;
+        }
+
+        textarea, select, input[type="color"], input[type="range"] {
+            width: 100%;
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.6rem;
+            font: inherit;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        textarea:focus, select:focus, input:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 1px;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .row {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .row-3 { grid-template-columns: 2fr 1fr 1fr; }
+        .row-2 { grid-template-columns: 1fr 1fr; }
+
+        .field label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="color"] {
+            padding: 0.2rem;
+            height: 40px;
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--surface-2);
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--surface-2);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .toggle-group button {
+            flex: 1;
+            background: transparent;
+            color: var(--muted);
+            border: none;
+            border-radius: 6px;
+            padding: 0.4rem;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.9rem;
+            min-width: 40px;
+        }
+
+        .toggle-group button.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .toggle-group button:hover:not(.active) {
+            color: var(--text);
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.7rem 1.25rem;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        button.primary:hover { background: var(--accent-hover); }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .paper-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .paper-controls select {
+            width: auto;
+            padding: 0.4rem 0.6rem;
+        }
+
+        .paper-wrap {
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: auto;
+        }
+
+        .preview-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .preview-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .preview-label .tag {
+            display: inline-block;
+            margin-left: 0.4rem;
+            padding: 0.1rem 0.45rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            background: var(--accent);
+            color: white;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .paper {
+            background: white;
+            color: black;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .paper.letter { width: 320px; height: 414px; } /* 8.5:11 */
+        .paper.a4 { width: 310px; height: 439px; }     /* 210:297 */
+
+        .paper-inner {
+            position: absolute;
+            inset: 28px; /* ~0.75in margin scaled */
+            border: 1px dashed #d1d5db;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .text-block {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: system-ui, sans-serif;
+        }
+
+        #reversed {
+            transform: scaleX(-1);
+            direction: rtl;
+            unicode-bidi: bidi-override;
+        }
+
+        .hint {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 2rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back:hover { color: var(--text); }
+
+        @media (max-width: 720px) {
+            .row-3, .row-2 { grid-template-columns: 1fr; }
+            .paper-wrap { flex-direction: column; align-items: center; }
+            .paper.letter { width: 100%; max-width: 360px; height: auto; aspect-ratio: 8.5 / 11; }
+            .paper.a4 { width: 100%; max-width: 360px; height: auto; aspect-ratio: 210 / 297; }
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            body * { visibility: hidden; }
+            #printPaper, #printPaper * { visibility: visible; }
+            #printPaper {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                box-shadow: none;
+                background: white;
+            }
+            #printPaper .paper-inner { border: none; inset: 0.75in; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Reverse My Text</h1>
+
+        <div class="panel">
+            <h2>Your text</h2>
+            <textarea id="input" placeholder="Type here — preview updates as you type..."></textarea>
+        </div>
+
+        <div class="panel">
+            <h2>Formatting</h2>
+            <div class="row row-3" style="margin-bottom: 0.75rem;">
+                <div class="field">
+                    <label for="font">Font</label>
+                    <select id="font">
+                        <option value="system-ui, sans-serif">System</option>
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Verdana, sans-serif">Verdana</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                        <option value="Impact, sans-serif">Impact</option>
+                        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="size">Size</label>
+                    <select id="size">
+                        <option>12px</option>
+                        <option>16px</option>
+                        <option>20px</option>
+                        <option selected>28px</option>
+                        <option>36px</option>
+                        <option>48px</option>
+                        <option>64px</option>
+                        <option>80px</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="color">Color</label>
+                    <input type="color" id="color" value="#000000">
+                </div>
+            </div>
+            <div class="row row-2" style="margin-bottom: 0.75rem;">
+                <div class="field">
+                    <label>Style</label>
+                    <div class="toggle-group" id="styleGroup">
+                        <button data-style="bold" style="font-weight: 700;">B</button>
+                        <button data-style="italic" style="font-style: italic;">I</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Alignment</label>
+                    <div class="toggle-group" id="alignGroup">
+                        <button data-align="left" class="active">Left</button>
+                        <button data-align="center">Center</button>
+                        <button data-align="right">Right</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-2">
+                <div class="field">
+                    <label for="letterSpacing">Letter spacing: <span id="letterSpacingValue">0px</span></label>
+                    <input type="range" id="letterSpacing" min="-2" max="10" value="0" step="0.5">
+                </div>
+                <div class="field">
+                    <label for="lineHeight">Line height: <span id="lineHeightValue">1.4</span></label>
+                    <input type="range" id="lineHeight" min="1" max="2.5" value="1.4" step="0.1">
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <div class="paper-controls">
+                <label for="paperSize">Paper:</label>
+                <select id="paperSize">
+                    <option value="letter">Letter (8.5×11)</option>
+                    <option value="a4">A4</option>
+                </select>
+            </div>
+            <button class="primary" id="print">Print Mirrored</button>
+        </div>
+
+        <div class="paper-wrap">
+            <div class="preview-col">
+                <div class="preview-label">Original</div>
+                <div class="paper letter" id="originalPaper">
+                    <div class="paper-inner">
+                        <pre id="original" class="text-block">Your text will appear here.</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="preview-col">
+                <div class="preview-label">Mirrored <span class="tag">prints this</span></div>
+                <div class="paper letter" id="printPaper">
+                    <div class="paper-inner">
+                        <pre id="reversed" class="text-block">Your reversed text will appear here.</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="hint">Left shows how it reads. Right is what prints — iron onto fabric and it'll read like the left.</p>
+
+        <a class="back" href="index.html">&larr; Back to V1</a>
+    </main>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const input = $('input'), reversed = $('reversed'), original = $('original');
+        const originalPaper = $('originalPaper'), printPaper = $('printPaper');
+        const font = $('font'), size = $('size'), color = $('color');
+        const letterSpacing = $('letterSpacing'), lineHeight = $('lineHeight');
+        const paperSize = $('paperSize');
+
+        const STORAGE_KEY = 'reverseMyTextV2';
+        const state = {
+            text: '',
+            font: 'system-ui, sans-serif',
+            size: '28px',
+            color: '#000000',
+            bold: false,
+            italic: false,
+            align: 'left',
+            letterSpacing: 0,
+            lineHeight: 1.4,
+            paper: 'letter'
+        };
+
+        function reverseText(text) {
+            if (!text.trim()) return 'Your reversed text will appear here.';
+            return text.split('\n').map(l => [...l].reverse().join('')).join('\n');
+        }
+
+        function applySharedStyles(el) {
+            el.style.fontFamily = state.font;
+            el.style.fontSize = state.size;
+            el.style.color = state.color;
+            el.style.fontWeight = state.bold ? '700' : '400';
+            el.style.fontStyle = state.italic ? 'italic' : 'normal';
+            el.style.letterSpacing = state.letterSpacing + 'px';
+            el.style.lineHeight = state.lineHeight;
+        }
+
+        function render() {
+            const hasText = state.text.trim().length > 0;
+            original.textContent = hasText ? state.text : 'Your text will appear here.';
+            reversed.textContent = hasText ? reverseText(state.text) : 'Your reversed text will appear here.';
+
+            applySharedStyles(original);
+            applySharedStyles(reversed);
+
+            original.style.textAlign = state.align;
+            // Mirrored element uses scaleX(-1), so alignment values still map directly
+            reversed.style.textAlign = state.align;
+
+            originalPaper.className = 'paper ' + state.paper;
+            printPaper.className = 'paper ' + state.paper;
+            originalPaper.id = 'originalPaper';
+            printPaper.id = 'printPaper';
+
+            $('letterSpacingValue').textContent = state.letterSpacing + 'px';
+            $('lineHeightValue').textContent = state.lineHeight;
+        }
+
+        function save() {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+        }
+
+        function load() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                Object.assign(state, saved);
+            } catch {}
+        }
+
+        function applyToUI() {
+            input.value = state.text;
+            font.value = state.font;
+            size.value = state.size;
+            color.value = state.color;
+            letterSpacing.value = state.letterSpacing;
+            lineHeight.value = state.lineHeight;
+            paperSize.value = state.paper;
+            document.querySelectorAll('#styleGroup button').forEach(b => {
+                b.classList.toggle('active', state[b.dataset.style]);
+            });
+            document.querySelectorAll('#alignGroup button').forEach(b => {
+                b.classList.toggle('active', state.align === b.dataset.align);
+            });
+        }
+
+        function update(key, value) {
+            state[key] = value;
+            render();
+            save();
+        }
+
+        input.addEventListener('input', e => update('text', e.target.value));
+        font.addEventListener('change', e => update('font', e.target.value));
+        size.addEventListener('change', e => update('size', e.target.value));
+        color.addEventListener('input', e => update('color', e.target.value));
+        letterSpacing.addEventListener('input', e => update('letterSpacing', parseFloat(e.target.value)));
+        lineHeight.addEventListener('input', e => update('lineHeight', parseFloat(e.target.value)));
+        paperSize.addEventListener('change', e => update('paper', e.target.value));
+
+        document.querySelectorAll('#styleGroup button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.dataset.style;
+                state[key] = !state[key];
+                btn.classList.toggle('active', state[key]);
+                render();
+                save();
+            });
+        });
+
+        document.querySelectorAll('#alignGroup button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.align = btn.dataset.align;
+                document.querySelectorAll('#alignGroup button').forEach(b => {
+                    b.classList.toggle('active', b.dataset.align === state.align);
+                });
+                render();
+                save();
+            });
+        });
+
+        $('print').addEventListener('click', () => window.print());
+
+        load();
+        applyToUI();
+        render();
+    </script>
+</body>
+</html>
