@@ -434,8 +434,9 @@
             paper: 'letter'
         };
 
+        const PLACEHOLDER = 'Your text will appear here.';
+
         function reverseText(text) {
-            if (!text.trim()) return 'Your reversed text will appear here.';
             return text.split('\n').map(l => [...l].reverse().join('')).join('\n');
         }
 
@@ -450,9 +451,9 @@
         }
 
         function render() {
-            const hasText = state.text.trim().length > 0;
-            original.textContent = hasText ? state.text : 'Your text will appear here.';
-            reversed.textContent = hasText ? reverseText(state.text) : 'Your reversed text will appear here.';
+            const displayText = state.text.trim().length > 0 ? state.text : PLACEHOLDER;
+            original.textContent = displayText;
+            reversed.textContent = reverseText(displayText);
 
             applySharedStyles(original);
             applySharedStyles(reversed);
