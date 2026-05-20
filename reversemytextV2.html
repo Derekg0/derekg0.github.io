@@ -259,8 +259,6 @@
 
         #reversed {
             transform: scaleX(-1);
-            direction: rtl;
-            unicode-bidi: bidi-override;
         }
 
         .hint {
@@ -436,10 +434,6 @@
 
         const PLACEHOLDER = 'Your text will appear here.';
 
-        function reverseText(text) {
-            return text.split('\n').map(l => [...l].reverse().join('')).join('\n');
-        }
-
         function applySharedStyles(el) {
             el.style.fontFamily = state.font;
             el.style.fontSize = state.size;
@@ -453,7 +447,7 @@
         function render() {
             const displayText = state.text.trim().length > 0 ? state.text : PLACEHOLDER;
             original.textContent = displayText;
-            reversed.textContent = reverseText(displayText);
+            reversed.textContent = displayText;
 
             applySharedStyles(original);
             applySharedStyles(reversed);
