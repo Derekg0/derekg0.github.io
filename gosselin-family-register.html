@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Gosselin Family Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --baize:#2A3830;        /* deep evergreen "table" */
+    --baize-2:#243029;
+    --linen:#ECE7D8;        /* register sheet */
+    --linen-2:#E4DECB;      /* panel / recessed */
+    --ink:#26312B;
+    --ink-soft:#5C6359;
+    --ink-faint:#8A8B7C;
+    --oxblood:#8A2B2A;
+    --oxblood-dk:#6E2120;
+    --brass:#9C7C3C;
+    --brass-soft:#B69A5F;
+    --line:rgba(38,49,43,.16);
+    --line-soft:rgba(38,49,43,.09);
+    /* the three streams */
+    --fc:#3F6B50;           /* French-Canadian */
+    --irish:#46617E;        /* Irish */
+    --polish:#7A4A63;       /* Polish */
+    --shadow:0 18px 50px rgba(0,0,0,.28);
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--baize);
+    background-image:radial-gradient(circle at 20% -10%, #34453b 0, transparent 55%),
+                     radial-gradient(circle at 100% 0%, #31423a 0, transparent 45%);
+    color:var(--ink);
+    font-family:"Spectral",Georgia,serif;
+    font-size:17px;
+    line-height:1.55;
+    padding:clamp(0px,3vw,40px);
+  }
+
+  .register{
+    max-width:1180px;
+    margin:0 auto;
+    background:var(--linen);
+    border:1px solid rgba(0,0,0,.25);
+    border-radius:2px;
+    box-shadow:var(--shadow);
+    overflow:visible;   /* not hidden — an overflow container would break the sticky record pane */
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    padding:34px clamp(20px,4vw,48px) 26px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .masthead::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+    background:linear-gradient(90deg,transparent,var(--brass),transparent);
+    opacity:.6;
+  }
+  .eyebrow{
+    font-family:"Space Mono",monospace;
+    font-size:11px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--brass);margin:0 0 12px;
+  }
+  .masthead h1{
+    font-family:"Fraunces",serif;
+    font-weight:500;
+    font-size:clamp(34px,6.2vw,60px);
+    line-height:.98;
+    letter-spacing:-.01em;
+    margin:0;
+    color:var(--ink);
+  }
+  .masthead h1 em{font-style:italic;color:var(--oxblood);font-weight:400;}
+  .thesis{
+    margin:14px 0 0;
+    max-width:56ch;
+    font-size:clamp(15px,2.2vw,18px);
+    color:var(--ink-soft);
+  }
+  .masthead-meta{
+    margin-top:20px;display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;
+    font-family:"Space Mono",monospace;font-size:11.5px;letter-spacing:.08em;
+    color:var(--ink-faint);text-transform:uppercase;
+  }
+  .masthead-meta b{color:var(--ink);font-weight:700;}
+
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:16px;}
+  .legend span{display:inline-flex;align-items:center;gap:7px;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.06em;color:var(--ink-soft);text-transform:uppercase;}
+  .swatch{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .swatch--fc{background:var(--fc);} .swatch--irish{background:var(--irish);} .swatch--polish{background:var(--polish);}
+  .swatch--in{background:transparent;border:1.5px solid var(--ink-faint);}
+
+  /* ---------- Mobile tabs ---------- */
+  .tabs{display:none;border-bottom:1px solid var(--line);background:var(--linen-2);}
+  .tabs button{
+    flex:1;appearance:none;border:0;background:transparent;cursor:pointer;
+    font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    padding:13px 8px;color:var(--ink-soft);border-bottom:2px solid transparent;
+  }
+  .tabs button[aria-selected="true"]{color:var(--oxblood);border-bottom-color:var(--oxblood);background:var(--linen);}
+
+  /* ---------- Panes ---------- */
+  .panes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);}
+  .tree-pane{border-right:1px solid var(--line);min-width:0;}
+  .card-pane{min-width:0;background:linear-gradient(180deg,var(--linen) 0,var(--linen-2) 100%);
+    position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;}
+
+  .pane-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:16px clamp(16px,3vw,26px) 12px;
+    border-bottom:1px solid var(--line-soft);
+    position:sticky;top:0;z-index:5;background:var(--linen);
+  }
+  .card-pane .pane-head{background:var(--linen);}
+  .pane-title{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);}
+
+  .tree-tools{display:flex;gap:6px;}
+  .tool{
+    appearance:none;border:1px solid var(--line);background:transparent;border-radius:2px;cursor:pointer;
+    font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-soft);padding:5px 8px;
+  }
+  .tool:hover{border-color:var(--brass);color:var(--ink);}
+
+  .search-wrap{padding:12px clamp(16px,3vw,26px);border-bottom:1px solid var(--line-soft);}
+  .search{
+    width:100%;border:1px solid var(--line);background:var(--linen-2);border-radius:2px;
+    font-family:"Spectral",serif;font-size:15px;color:var(--ink);
+    padding:9px 12px;
+  }
+  .search::placeholder{color:var(--ink-faint);}
+  .search:focus{outline:2px solid var(--brass-soft);outline-offset:1px;border-color:var(--brass);}
+
+  /* ---------- Tree ---------- */
+  .tree-scroll{padding:10px clamp(10px,2.4vw,20px) 30px;max-height:none;overflow-x:auto;}
+  ul.tree{list-style:none;margin:0;padding:0;}
+  ul.tree ul{list-style:none;margin:0;padding:0 0 0 20px;position:relative;}
+  ul.tree ul::before{
+    content:"";position:absolute;left:9px;top:0;bottom:14px;width:1px;background:var(--line);
+  }
+  .node{position:relative;}
+  .node > .row{position:relative;}
+  ul.tree ul > .node > .row::before{
+    content:"";position:absolute;left:-11px;top:16px;width:11px;height:1px;background:var(--line);
+  }
+
+  .row{display:flex;align-items:flex-start;gap:4px;padding:2px 0;}
+  .row__toggle{
+    appearance:none;border:0;background:transparent;cursor:pointer;
+    width:18px;height:26px;flex:none;color:var(--ink-faint);font-size:11px;line-height:26px;
+    padding:0;transition:transform .18s ease;
+  }
+  .row__toggle:hover{color:var(--oxblood);}
+  .row__toggle.spacer{cursor:default;}
+  .node.collapsed > .row .row__toggle{transform:rotate(-90deg);}
+  .node.collapsed > ul{display:none;}
+
+  .row__name{
+    appearance:none;border:0;background:transparent;cursor:pointer;text-align:left;
+    font-family:"Spectral",serif;font-size:15.5px;color:var(--ink);
+    padding:3px 8px 3px 4px;border-radius:2px;line-height:1.3;min-width:0;
+    display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  }
+  .row__name:hover{color:var(--oxblood);}
+  .row__name .yr{font-family:"Space Mono",monospace;font-size:10.5px;color:var(--ink-faint);letter-spacing:.02em;}
+  .row__name .spouse{font-style:italic;color:var(--ink-soft);font-size:13.5px;}
+  .row__name .spouse b{font-style:normal;}
+  .dots{display:inline-flex;gap:3px;align-self:center;}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+  .dot--fc{background:var(--fc);} .dot--irish{background:var(--irish);} .dot--polish{background:var(--polish);}
+  .dot--in{background:transparent;border:1px solid var(--ink-faint);}
+
+  .node.active > .row > .row__name{background:rgba(138,43,42,.10);box-shadow:inset 3px 0 0 var(--oxblood);color:var(--oxblood-dk);}
+  .row__name:focus-visible{outline:2px solid var(--brass);outline-offset:1px;}
+  .you-tag{font-family:"Space Mono",monospace;font-size:9px;letter-spacing:.12em;background:var(--oxblood);color:#fff;padding:1px 5px;border-radius:2px;text-transform:uppercase;align-self:center;}
+  .dim{opacity:.32;}
+  .hidden{display:none !important;}
+
+  .root-note{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin:2px 0 2px 30px;}
+
+  /* ---------- Record card ---------- */
+  .card{padding:24px clamp(18px,3.4vw,38px) 40px;}
+  .card__gen{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin:0 0 10px;}
+  .card__name{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(26px,4.6vw,40px);line-height:1.02;margin:0;color:var(--ink);letter-spacing:-.01em;}
+  .card__life{font-family:"Space Mono",monospace;font-size:13px;color:var(--ink-soft);margin:12px 0 0;letter-spacing:.02em;}
+  .card__place{margin:4px 0 0;color:var(--ink-soft);font-style:italic;font-size:15px;}
+
+  .badges{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 0;}
+  .badge{font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:4px 9px;border-radius:2px;border:1px solid var(--brass);color:var(--brass);background:rgba(156,124,60,.06);}
+  .badge--origin{border-color:var(--line);}
+  .badge--origin.fc{color:var(--fc);border-color:rgba(63,107,80,.5);background:rgba(63,107,80,.07);}
+  .badge--origin.irish{color:var(--irish);border-color:rgba(70,97,126,.5);background:rgba(70,97,126,.07);}
+  .badge--origin.polish{color:var(--polish);border-color:rgba(122,74,99,.5);background:rgba(122,74,99,.07);}
+  .badge--in{color:var(--ink-faint);border-color:var(--line);}
+
+  .card__bio{margin:22px 0 0;font-size:16.5px;line-height:1.62;color:var(--ink);max-width:60ch;}
+  .card__bio.frontier{padding-left:16px;border-left:2px solid var(--brass);color:var(--ink-soft);font-style:italic;}
+
+  .rel{margin:26px 0 0;border-top:1px solid var(--line);padding-top:18px;}
+  .rel__group{margin:0 0 16px;}
+  .rel__label{font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 8px;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{
+    appearance:none;border:1px solid var(--line);background:var(--linen);cursor:pointer;border-radius:2px;
+    font-family:"Spectral",serif;font-size:14.5px;color:var(--ink);padding:5px 11px;line-height:1.25;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .chip:hover{border-color:var(--oxblood);color:var(--oxblood);}
+  .chip:focus-visible{outline:2px solid var(--brass);outline-offset:1px;}
+  .chip .chip-dots{display:inline-flex;gap:2px;}
+  .chip .chip-dots .dot{width:6px;height:6px;}
+  .rel__empty{color:var(--ink-faint);font-style:italic;font-size:14.5px;}
+
+  /* ---------- About ---------- */
+  .about{border-top:1px solid var(--line);padding:0 clamp(18px,3.4vw,38px);}
+  .about details{padding:16px 0 22px;}
+  .about summary{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);cursor:pointer;list-style:none;}
+  .about summary::-webkit-details-marker{display:none;}
+  .about summary::before{content:"+ ";}
+  .about details[open] summary::before{content:"– ";}
+  .about p{font-size:14.5px;color:var(--ink-soft);max-width:70ch;margin:12px 0 0;}
+  .about strong{color:var(--ink);}
+
+  .footer{padding:18px clamp(18px,4vw,48px) 26px;border-top:1px solid var(--line);font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:var(--ink-faint);text-transform:uppercase;}
+
+  @media (max-width:820px){
+    body{font-size:16px;padding:0;}
+    .register{border-radius:0;border-left:0;border-right:0;}
+    .tabs{display:flex;}
+    .panes{grid-template-columns:1fr;}
+    .tree-pane{border-right:0;}
+    .panes[data-view="tree"] .card-pane{display:none;}
+    .panes[data-view="card"] .tree-pane{display:none;}
+    .pane-head{position:static;}
+    .card-pane{position:static;max-height:none;overflow-y:visible;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important;}}
+
+  /* ---------- Family-tree diagram ---------- */
+  .card__diagram-btn{
+    appearance:none;cursor:pointer;margin:20px 0 0;display:inline-flex;align-items:center;gap:8px;
+    font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--linen);background:var(--oxblood);border:0;border-radius:2px;padding:10px 15px;
+  }
+  .card__diagram-btn:hover{background:var(--oxblood-dk);}
+  .tdm{position:fixed;inset:0;z-index:60;display:none;}
+  .tdm.open{display:block;}
+  .tdm__backdrop{position:absolute;inset:0;background:rgba(20,26,22,.55);}
+  .tdm__panel{position:absolute;inset:clamp(10px,3vw,40px);background:#E8E2D0;border:1px solid rgba(0,0,0,.3);
+    border-radius:3px;box-shadow:0 24px 60px rgba(0,0,0,.45);display:flex;flex-direction:column;overflow:hidden;}
+  .tdm__head{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--line);background:var(--linen);}
+  .tdm__title{font-family:"Fraunces",serif;font-weight:500;font-size:19px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tdm__hint{font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-left:auto;white-space:nowrap;}
+  .tdm__close{appearance:none;border:1px solid var(--line);background:transparent;border-radius:2px;cursor:pointer;
+    font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;line-height:1;padding:8px 11px;color:var(--ink-soft);}
+  .tdm__close:hover{border-color:var(--oxblood);color:var(--oxblood);}
+  .tdm__body{flex:1;overflow:auto;padding:22px;}
+  .tdm__body svg{display:block;}
+  .tdm__body svg g[data-diag-id]{transition:opacity .12s ease;}
+  .tdm__body svg g[data-diag-id]:hover{opacity:.72;}
+  @media (max-width:820px){ .tdm__panel{inset:0;border-radius:0;} .tdm__hint{display:none;} }
+
+  /* ---------- Records & sources ---------- */
+  .rec{margin:26px 0 0;border-top:1px solid var(--line);padding-top:18px;}
+  .rec__label{font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;}
+  .rec__item{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--ink);padding:7px 0;border-bottom:1px dotted var(--line);}
+  .rec__item:hover .rec__txt{color:var(--oxblood);}
+  .rec__tag{flex:none;font-family:"Space Mono",monospace;font-size:9px;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:2px;border:1px solid var(--line);color:var(--ink-soft);white-space:nowrap;}
+  .rec__tag--census{color:var(--fc);border-color:rgba(63,107,80,.4);}
+  .rec__tag--death,.rec__tag--burial,.rec__tag--naturalization{color:var(--irish);border-color:rgba(70,97,126,.4);}
+  .rec__tag--baptism,.rec__tag--birth,.rec__tag--marriage{color:var(--polish);border-color:rgba(122,74,99,.4);}
+  .rec__tag--profile{color:var(--brass);border-color:var(--brass-soft);}
+  .rec__txt{font-family:"Spectral",serif;font-size:14.5px;line-height:1.35;}
+  .rec__thumb{display:block;max-width:230px;max-height:160px;margin:9px 0 13px;border:1px solid var(--line);border-radius:2px;cursor:zoom-in;}
+  .lb{position:fixed;inset:0;z-index:70;display:none;}
+  .lb.open{display:flex;align-items:center;justify-content:center;}
+  .lb__backdrop{position:absolute;inset:0;background:rgba(15,20,17,.82);}
+  .lb__fig{position:relative;margin:0;max-width:92vw;max-height:92vh;display:flex;flex-direction:column;gap:10px;z-index:1;}
+  .lb__fig img{max-width:92vw;max-height:82vh;object-fit:contain;border:2px solid var(--linen);border-radius:2px;box-shadow:0 20px 60px rgba(0,0,0,.5);background:#fff;}
+  .lb__cap{font-family:"Space Mono",monospace;font-size:11px;color:var(--linen);text-align:center;letter-spacing:.04em;}
+  .lb__cap a{color:var(--brass-soft);}
+  .lb__close{position:absolute;top:16px;right:20px;z-index:2;appearance:none;border:1px solid rgba(236,231,216,.5);background:rgba(0,0,0,.3);color:var(--linen);border-radius:2px;cursor:pointer;font-size:15px;padding:6px 11px;}
+</style>
+</head>
+<body>
+<main class="register">
+  <header class="masthead">
+    <p class="eyebrow">A Family Register</p>
+    <h1>The <em>Gosselin</em> Family</h1>
+    <p class="thesis">Three immigrant streams — French‑Canadian, Irish, and Polish — meeting in the mill towns of the Connecticut River Valley: Holyoke, Chicopee, and Springfield. The French‑Canadian line now reaches back to a Norman who crossed to New France about 1650.</p>
+    <div class="masthead-meta">
+      <span><b>1621 – today</b></span>
+      <span><b id="count">—</b> people</span>
+      <span>Obituaries + FamilySearch records</span>
+    </div>
+    <div class="legend" aria-label="Origin key">
+      <span><i class="swatch swatch--fc"></i> French‑Canadian</span>
+      <span><i class="swatch swatch--irish"></i> Irish</span>
+      <span><i class="swatch swatch--polish"></i> Polish</span>
+      <span><i class="swatch swatch--in"></i> Married in</span>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="false" data-view="tree">The Tree</button>
+    <button role="tab" aria-selected="true" data-view="card">The Record</button>
+  </div>
+
+  <div class="panes" data-view="card">
+    <section class="tree-pane" aria-label="Family tree">
+      <div class="pane-head">
+        <span class="pane-title">Descent</span>
+        <div class="tree-tools">
+          <button class="tool" id="expandAll">Expand all</button>
+          <button class="tool" id="collapseAll">Collapse</button>
+        </div>
+      </div>
+      <div class="search-wrap">
+        <input class="search" id="search" type="search" placeholder="Find a name…" aria-label="Search names" />
+      </div>
+      <div class="tree-scroll">
+        <ul class="tree" id="tree"></ul>
+      </div>
+    </section>
+
+    <section class="card-pane" aria-label="Person record">
+      <div class="pane-head">
+        <span class="pane-title">Record</span>
+      </div>
+      <article class="card" id="card"></article>
+      <div class="about">
+        <details>
+          <summary>About this register</summary>
+          <p>Everything here is drawn from published <strong>obituaries and death notices</strong> — chiefly those of Robert Gosselin (2025) and Russell J. Gosselin (2006), plus the Lonczak family notices. Names of living relatives come from those same public records.</p>
+          <p>The living generations come from those obituaries. The <strong>older generations</strong> — everything above the great‑grandparents — were traced in July 2026 through <strong>FamilySearch</strong> census, vital, and parish records: the French‑Canadian Gosselin line all the way to <strong>Gabriel Gosselin (1621, Combray, Normandy)</strong>, the Irish line to the immigrant <strong>Jeremiah Brennan (b. 1861, County Kerry)</strong>, and the Polish line to <strong>Michał Lonczak (b.~1846) &amp; Agnieszka Puła</strong> of Piątkowiec in Zgórsko parish, Galicia.</p>
+          <p>Two names listed in the 2006 obituary, <strong>Stephanie and Michael Gosselin</strong> (with Rusty's household but not blood children), are left off this register by request. On the old Katyń question: Ludwik's 1884 baptism names his parents as Michał Lonczak &amp; Agnieszka Puła of Piątkowiec — the very details once thought to belong to a <em>different</em> Ludwik. Ours emigrated in 1904 and <strong>died in Chicopee in 1938</strong>, so he was never a Katyń victim; the earlier note simply had the identification backwards.</p>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">Gosselin Family Register · Holyoke · Chicopee · Springfield</footer>
+</main>
+
+<div id="treeDiagramModal" class="tdm" role="dialog" aria-modal="true" aria-label="Family tree diagram">
+  <div class="tdm__backdrop"></div>
+  <div class="tdm__panel">
+    <div class="tdm__head">
+      <span class="tdm__title" id="tdmTitle">Family tree</span>
+      <span class="tdm__hint">Click a person to re-center · Esc to close</span>
+      <button class="tdm__close" id="tdmClose" aria-label="Close diagram">✕ Close</button>
+    </div>
+    <div class="tdm__body" id="tdmBody"></div>
+  </div>
+</div>
+
+<div id="imgLightbox" class="lb" role="dialog" aria-modal="true" aria-label="Record image">
+  <div class="lb__backdrop"></div>
+  <figure class="lb__fig">
+    <img id="lbImg" alt="Record image" />
+    <figcaption class="lb__cap"><span id="lbCap"></span> &nbsp; <a id="lbLink" href="#" target="_blank" rel="noopener">View full record on FamilySearch →</a></figcaption>
+  </figure>
+  <button class="lb__close" id="lbClose" aria-label="Close image">✕</button>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- DATA ----------
+  // origins: 'fc' French-Canadian · 'irish' Irish · 'polish' Polish · 'in' married in
+  var P = {
+    // ============================================================
+    //  ANCESTRAL LINES  (traced July 2026 via FamilySearch records)
+    // ============================================================
+
+    // ---- French-Canadian (Gosselin) line — Normandy → Québec → Lynn, MA ----
+    gabriel:{name:'Gabriel Gosselin',gen:0,genLabel:'9× great-grandfather · the immigrant founder',born:'1621',died:'1697',life:'1621 – 1697',place:'Combray, Normandy → Île d’Orléans, Québec',origins:['fc'],tags:['Norman immigrant, c.1650','~15,000 descendants'],
+      bio:"The immigrant ancestor of virtually every Gosselin in North America. Born in 1621 at Combray (parish of Saint-Martin) in Normandy, he crossed to New France about 1650, worked as a servant to Éléonore de Grandmaison, and built up the largest landholding on the Île d’Orléans. He married Françoise Lelièvre — herself a young immigrant from France — at Notre-Dame de Québec in 1653, and died at Québec City in 1697. An estimated 15,000 people descend from him.",
+      parents:['nicolas','marguerite_dubreal'],spouses:['francoise_lelievre'],children:['francois_g8']},
+    francoise_lelievre:{name:'Françoise Lelièvre',gen:0,genLabel:'9× great-grandmother',born:'1632',died:'1677',origins:['fc'],tags:['Fille à marier'],
+      bio:"Gabriel's wife — a fille à marier who came from France to New France. They married at Notre-Dame de Québec in 1653. She is the mother of the Canadian Gosselin line.",
+      spouses:['gabriel'],children:['francois_g8']},
+    nicolas:{name:'Nicolas Gosselin',gen:0,genLabel:'10× great-grandfather',origins:['fc'],place:'Combray, Normandy, France',
+      bio:"Gabriel's father, of Combray in Normandy — the last securely recorded name on the French side of the trail, in the early 1600s. Beyond him the record thins into pre-1600 village registers.",
+      spouses:['marguerite_dubreal'],children:['gabriel']},
+    marguerite_dubreal:{name:'Marguerite Dubréal',gen:0,genLabel:'10× great-grandmother',origins:['fc'],place:'Combray, Normandy, France',
+      bio:"Gabriel's mother, of Combray in Normandy.",spouses:['nicolas'],children:['gabriel']},
+    francois_g8:{name:'François Gosselin',gen:0,genLabel:'8× great-grandparents',born:'1661',died:'1704',place:'Québec City → Île d’Orléans',origins:['fc'],
+      bio:"Born in 1661 in Québec City, a son of the immigrant Gabriel. He married Françoise Labrecque in 1690 on the Île d’Orléans.",
+      parents:['gabriel','francoise_lelievre'],spouses:['francoise_labrecque'],children:['ignace_g']},
+    francoise_labrecque:{name:'Françoise Labrecque',gen:0,genLabel:'8× great-grandmother',born:'1673',died:'1736',origins:['fc'],
+      bio:"François's wife, married 1690 on the Île d’Orléans.",spouses:['francois_g8'],children:['ignace_g']},
+    ignace_g:{name:'Ignace Gosselin',gen:0,genLabel:'7× great-grandparents',born:'1696',died:'1749',place:'Île d’Orléans → Saint-Vallier',origins:['fc'],
+      bio:"Born in 1696 on the Île d’Orléans; married Marie Magdeleine Isabel in 1727 at Saint-Laurent.",
+      parents:['francois_g8','francoise_labrecque'],spouses:['marie_isabel'],children:['josephignace']},
+    marie_isabel:{name:'Marie Magdeleine Isabel',gen:0,genLabel:'7× great-grandmother',born:'1702',died:'1761',origins:['fc'],
+      bio:"Ignace's wife, married 1727 at Saint-Laurent, Île d’Orléans.",spouses:['ignace_g'],children:['josephignace']},
+    josephignace:{name:'Joseph Ignace Gosselin',gen:0,genLabel:'6× great-grandparents',born:'1734',died:'1788',place:'Saint-Vallier, Québec',origins:['fc'],
+      bio:"Born in 1734 at Saint-Vallier in New France; married Marie Marthe Guillemette in 1767.",
+      parents:['ignace_g','marie_isabel'],spouses:['marie_guillemette'],children:['jacques_g']},
+    marie_guillemette:{name:'Marie Marthe Guillemette',gen:0,genLabel:'6× great-grandmother',born:'1742',died:'1836',origins:['fc'],
+      bio:"Joseph-Ignace's wife, married 1767 at Saint-Vallier.",spouses:['josephignace'],children:['jacques_g']},
+    jacques_g:{name:'Jacques Gosselin',gen:0,genLabel:'5× great-grandparents',born:'1778',died:'1851',place:'Saint-Vallier → Montmagny',origins:['fc'],
+      bio:"Born at Saint-Vallier in 1778; married Marie Josephe Roy in 1795.",
+      parents:['josephignace','marie_guillemette'],spouses:['marie_roy'],children:['francois_g4']},
+    marie_roy:{name:'Marie Josephe Roy',gen:0,genLabel:'5× great-grandmother',born:'1773',origins:['fc'],
+      bio:"Jacques's wife, married 1795 at Saint-Vallier.",spouses:['jacques_g'],children:['francois_g4']},
+    francois_g4:{name:'François Gosselin',gen:0,genLabel:'4× great-grandparents',born:'1799',died:'1851',place:'Bellechasse, Québec',origins:['fc'],
+      bio:"A Gosselin of Saint-Charles- and Saint-Vallier-de-Bellechasse; in 1822 he married Emerentienne Couillard de Beaumont — the Couillards were among New France's very first settler families.",
+      parents:['jacques_g','marie_roy'],spouses:['emerentienne'],children:['narcisse']},
+    emerentienne:{name:'Emerentienne Couillard de Beaumont',gen:0,genLabel:'4× great-grandmother',born:'1794',died:'1828',origins:['fc'],tags:['Couillard line'],
+      bio:"Of the old Couillard de Beaumont line — descendants of Guillaume Couillard and Guillemette Hébert, among the earliest French families of Québec in the 1620s. She married François in 1822.",
+      spouses:['francois_g4'],children:['narcisse']},
+    narcisse:{name:'Narcisse Gosselin',gen:0,genLabel:'3× great-grandparents',born:'1825',died:'1904',place:'Saint-Vallier, Québec → Lynn, MA',origins:['fc'],tags:['Fourteen children'],
+      bio:"Born at Saint-Vallier, Bellechasse in 1825; married Marie Thibeault in 1848 at Montmagny and raised fourteen children. Like his son Isaïe, he emigrated to Lynn, Massachusetts, dying there in 1904.",
+      parents:['francois_g4','emerentienne'],spouses:['marie_thibeault'],children:['isaie']},
+    marie_thibeault:{name:'Marie Rose Délima Thibeault',gen:0,genLabel:'3× great-grandmother',born:'1828',origins:['fc'],
+      bio:"Narcisse's wife, a Thibeault of Bellechasse, married 1848; mother of fourteen.",spouses:['narcisse'],children:['isaie']},
+    isaie:{name:'Isaïe “Fred” Gosselin',gen:0,genLabel:'2× great-grandparents · immigrants',born:'1859',place:'Baie-des-Sables, Québec → Lynn, MA',origins:['fc'],tags:['Immigrant 1886','Cultivateur','Thirteen children'],
+      bio:"Henry's father — the French-Canadian immigrant on this line. A farmer (cultivateur) from Baie-des-Sables in the Gaspésie, he married Marie Parent in 1885, emigrated to Lynn about 1886, and raised thirteen children; Henry was the seventh, and the first born in America.",
+      parents:['narcisse','marie_thibeault'],spouses:['marie_parent'],children:['henry']},
+    marie_parent:{name:'Marie Parent',gen:0,genLabel:'2× great-grandmother',born:'1865',died:'1952',origins:['fc'],
+      bio:"Isaïe's wife, married at Baie-des-Sables in 1885; mother of thirteen. She lived until 1952.",spouses:['isaie'],children:['henry']},
+
+    // ---- Irish (Brennan) line — Ireland → Boston ----
+    jeremiah:{name:'Jeremiah A. Brennan',gen:0,genLabel:'2× great-grandparents · immigrant',born:'1861',died:'1920',place:'County Kerry, Ireland → Boston, MA',origins:['irish'],tags:['Immigrant from Ireland','County Kerry'],
+      bio:"Katherine's father and the family's Irish immigrant. His 1891 Boston naturalization petition gives his birth as 25 December 1861 in County Kerry, Ireland — the county the family came from. He married in Massachusetts in 1887, naturalized in 1891, and died in Boston in 1920 (buried in West Roxbury). Katherine was one of the couple's nine children. The exact Kerry townland is still to be found.",
+      parents:['john_brennan','catherine_oconnor'],spouses:['catherine_renn'],children:['katherine']},
+    catherine_renn:{name:'Catherine A. Brennan',gen:0,genLabel:'2× great-grandmother',born:'1863',died:'1904',origins:['irish'],
+      bio:"Jeremiah's wife (maiden name recorded as “Renn”), 1863–1904; mother of nine, Katherine among them.",spouses:['jeremiah'],children:['katherine']},
+    john_brennan:{name:'John Brennan',gen:0,genLabel:'3× great-grandparents',place:'Ireland',origins:['irish'],
+      bio:"Jeremiah's father, in Ireland — the last securely known name on the Brennan line. (The community tree's data beyond him is an unreliable mix-up.) The family's Irish townland is still to be found.",
+      spouses:['catherine_oconnor'],children:['jeremiah']},
+    catherine_oconnor:{name:"Catherine O'Connor",gen:0,genLabel:'3× great-grandmother',place:'Ireland',origins:['irish'],
+      bio:"Jeremiah's mother, an O'Connor, in Ireland.",spouses:['john_brennan'],children:['jeremiah']},
+
+    // ---- Polish (Lonczak & Midura) line — Galicia → Chicopee ----
+    michal_l:{name:'Michał Lonczak',gen:0,genLabel:'2× great-grandparents · Galicia',born:'1846',died:'1920',place:'Piątkowiec, Zgórsko parish, Galicia',origins:['polish'],
+      bio:"Ludwik's father, a farmer of the hamlet of Piątkowiec in Zgórsko parish, Galicia. Born about 1846, he died there on 3 April 1920. He and Agnieszka Puła are named in Ludwik's 1884 baptism record, and the Polish index Geneteka shows the Lonczak and Puła families rooted in Piątkowiec since the early 1800s.",
+      spouses:['agnieszka'],children:['ludwik']},
+    agnieszka:{name:'Agnieszka Puła',gen:0,genLabel:'2× great-grandmother',place:'Zgórsko parish, Galicia',origins:['polish'],
+      bio:"Ludwik's mother; her maiden name appears as Puła (indexed “Puts”) in the Zgórsko parish register.",spouses:['michal_l'],children:['ludwik']},
+    michael_midura:{name:'Michael Midura',gen:0,genLabel:'2× great-grandparents · Galicia',born:'1860',place:'Galicia, Poland',origins:['polish'],
+      bio:"Mary's father, a Midura of Galicia, born about 1860.",spouses:['mary_siekirka'],children:['maria']},
+    mary_siekirka:{name:'Mary Siekirka',gen:0,genLabel:'2× great-grandmother',born:'1860',place:'Galicia, Poland',origins:['polish'],
+      bio:"Mary's mother, born about 1860 in Galicia.",spouses:['michael_midura'],children:['maria']},
+
+    // ---- Generation I : great-grandparents ----
+    henry:{name:'Henry Louis “Harry” Gosselin',gen:1,genLabel:'Great-grandparents',born:'1893',died:'1940',life:'Mar 31, 1893 – Mar 16, 1940',place:'Lynn → Holyoke, MA',origins:['fc'],tags:['Born in Lynn','WWI draft'],
+      bio:"Derek's great-grandfather. Long assumed to be the immigrant on this line, he was in fact born in Lynn in 1893 — the son of French-Canadian immigrants Isaïe Gosselin and Marie Parent. He married Katherine Brennan in Boston in 1915 and raised four children before dying young, in 1940.",
+      parents:['isaie','marie_parent'],spouses:['katherine'],children:['russell_j','marjorie_k','mildred_g','evelyn_g']},
+    katherine:{name:'Katheryne A. (Brennan) Gosselin',gen:1,genLabel:'Great-grandparents',born:'1893',place:'Massachusetts',origins:['irish'],tags:['Born in Massachusetts'],
+      bio:"Derek's great-grandmother and the family's Irish thread \u2014 though she too was American-born, in Massachusetts about 1893. It was her father, Jeremiah Brennan, who was the immigrant, from Ireland. She married Henry in Boston in 1915. \u201CBrennan\u201D anglicizes the Gaelic \u00D3 Braon\u00E1in.",
+      parents:['jeremiah','catherine_renn'],spouses:['henry'],children:['russell_j','marjorie_k','mildred_g','evelyn_g']},
+    ludwik:{name:'Ludwik “Louis” Lonczak',gen:1,genLabel:'Great-grandparents',born:'1884',died:'1938',life:'Sep 11, 1884 – 1938',place:'Piątkowiec, Galicia → Chicopee, MA',origins:['polish'],tags:['Immigrant 1904','Twelve children'],
+      bio:"Derek's great-grandfather, born in 1884 in the hamlet of Piątkowiec (Zgórsko parish) in Galicia, southern Poland, to Michał Lonczak and Agnieszka Puła. He emigrated in 1904, settled in Chicopee, and with Mary raised twelve children — the family left enough of a mark that a Lonczak Street still runs through the city. He died in 1938. (A namesake killed at Katyń in 1940 is a different man.)",
+      parents:['michal_l','agnieszka'],spouses:['maria'],children:['michaeline','michael_l','edward_l','walter_l','stanley_l','frederick_l','adam_l','angela_b','joanna_l','june_m','jean_c','helen_k']},
+    maria:{name:'Mary (Midura) Lonczak',gen:1,genLabel:'Great-grandparents',born:'1888',died:'1972',life:'Aug 8, 1888 – 1972',place:'Galicia → Chicopee, MA',origins:['polish'],tags:['Immigrant 1904'],
+      bio:"Ludwik's wife and mother of twelve, born in Poland (Galicia) in 1888 to Michael Midura and Mary Siekirka; she lived in Chicopee until 1972.\u201CMidura\u201D is her maiden name — a second Polish line reaching back into Galicia, traceable through parish records once the family's village is known.",
+      parents:['michael_midura','mary_siekirka'],spouses:['ludwik'],children:['michaeline','michael_l','edward_l','walter_l','stanley_l','frederick_l','adam_l','angela_b','joanna_l','june_m','jean_c','helen_k']},
+
+    // ---- Generation II : grandparents & their siblings ----
+    russell_j:{name:'Russell Joseph \u201CRuss\u201D Gosselin',gen:2,born:'1916',died:'2006',life:'Aug 4, 1916 \u2013 Oct 25, 2006',place:'Lynn \u2192 Holyoke \u2192 Springfield, MA',origins:['fc','irish'],tags:['U.S. Coast Guard','WWII'],
+      bio:"Derek's grandfather, and a character. Born in Lynn, he came west to Holyoke, where he met Michaeline; they were married more than sixty years. A WWII Coast Guard boatswain's mate, he served aboard the USS Modoc on the Greenland Patrol. He spent forty-plus years as a glazier at Brockway-Smith and was active in the Teamsters, and on the side he ran a TV-repair business and the BZ Bowling alley in Springfield. Baseball was the love of his life — he played for teams like the Holyoke Knights of Columbus, and after retiring to St. Augustine, Florida in 1978 he built a serious baseball-card collection as a devoted Red Sox and Braves fan.",
+      parents:['henry','katherine'],spouses:['michaeline'],children:['elizabeth','cynthia','janice','rusty','robert','glenn']},
+    michaeline:{name:'Michaeline \u201CMay\u201D (Lonczak) Gosselin',gen:2,born:'1922',died:'2005',life:'Sep 23, 1922 – May 28, 2005',place:'Chicopee → Holyoke → St. Augustine, FL',origins:['polish'],tags:['One of twelve'],
+      bio:"Derek's grandmother, known as May. One of Ludwik and Maria's twelve children, she met Russell in Holyoke and was married to him for over sixty years. Her Lonczak roots carry the family's Polish line.",
+      parents:['ludwik','maria'],spouses:['russell_j'],children:['elizabeth','cynthia','janice','rusty','robert','glenn']},
+    marjorie_k:{name:'Marjorie (Gosselin) Klimoski',gen:2,place:'Massachusetts',origins:['fc','irish'],
+      bio:"Russell's sister, still living at the time of his 2006 obituary.",parents:['henry','katherine']},
+    mildred_g:{name:'Mildred Gosselin',gen:2,origins:['fc','irish'],bio:"One of Russell's sisters.",parents:['henry','katherine']},
+    evelyn_g:{name:'Evelyn Gosselin',gen:2,origins:['fc','irish'],bio:"One of Russell's sisters.",parents:['henry','katherine']},
+
+    michael_l:{name:'Michael Francis Lonczak',gen:2,born:'1916',died:'2017',life:'Aug 7, 1916 \u2013 Feb 4, 2017',place:'Chicopee, MA',origins:['polish'],tags:['Lived to 100','WWII'],
+      bio:"Michaeline's brother, who lived to be 100. He attended St. Stanislaus School and Chicopee High before serving in the Army Air Force in WWII; while stationed in Edmonton he met and married Marjorie Flowers on St. Patrick's Day, 1945. Back home he and his brother Walter opened the Lonczak Spa, a small caf\u00E9.",
+      parents:['ludwik','maria']},
+    edward_l:{name:'Edward J. Lonczak',gen:2,born:'1924',died:'2015',life:'Jul 16, 1924 \u2013 Mar 6, 2015',place:'Braintree, MA',origins:['polish'],tags:['WWII \u00B7 Purple Heart'],
+      bio:"The ninth of the twelve Lonczak children and a decorated WWII veteran. He and his wife Evelyn (Glinka) were married nearly 54 years and raised a large family.",
+      parents:['ludwik','maria']},
+    walter_l:{name:'Walter Lonczak',gen:2,origins:['polish'],bio:"One of the twelve Lonczak siblings; co-founded the Lonczak Spa caf\u00E9 in Chicopee with his brother Michael.",parents:['ludwik','maria']},
+    stanley_l:{name:'Stanley Lonczak',gen:2,origins:['polish'],bio:"One of the twelve Lonczak siblings.",parents:['ludwik','maria']},
+    frederick_l:{name:'Frederick Lonczak',gen:2,origins:['polish'],bio:"One of the twelve Lonczak siblings.",parents:['ludwik','maria']},
+    adam_l:{name:'Adam Lonczak',gen:2,origins:['polish'],bio:"One of the twelve Lonczak siblings.",parents:['ludwik','maria']},
+    angela_b:{name:'Angela (Lonczak) Bragiel',gen:2,origins:['polish'],bio:"One of the twelve Lonczak siblings.",parents:['ludwik','maria']},
+    joanna_l:{name:'Joanna Lonczak',gen:2,origins:['polish'],bio:"One of the twelve Lonczak siblings.",parents:['ludwik','maria']},
+    june_m:{name:'Julia \u201CJune\u201D (Lonczak) Martin',gen:2,place:'Chicopee, MA',origins:['polish'],bio:"One of the twelve Lonczak siblings.",parents:['ludwik','maria']},
+    jean_c:{name:'Genevieve \u201CJean\u201D (Lonczak) Callahan',gen:2,place:'North Reading, MA',origins:['polish'],bio:"One of the twelve Lonczak siblings.",parents:['ludwik','maria']},
+    helen_k:{name:'Helen (Lonczak) Kelly',gen:2,place:'Agawam, MA',origins:['polish'],bio:"One of the twelve Lonczak siblings.",parents:['ludwik','maria']},
+
+    // ---- Generation III : Derek's parents, aunts & uncles ----
+    elizabeth:{name:'Elizabeth Gosselin',gen:3,origins:['fc','irish','polish'],tags:['Died in infancy'],
+      bio:"Russell and Michaeline's firstborn, who died soon after birth.",parents:['russell_j','michaeline']},
+    cynthia:{name:'Cynthia \u201CCindy\u201D (Gosselin) Hebert',gen:3,place:'Springfield, MA',origins:['fc','irish','polish'],
+      bio:"Derek's aunt. Her three children — Gina, Tony, and Elaina — are from her first marriage, to Rocky Ragone; she later married Brian Hebert. Springfield.",
+      parents:['russell_j','michaeline'],spouses:['rocky_ragone','brian_h'],children:['gina_r','anthony_r','elaina_m']},
+    rocky_ragone:{name:'Rocky Ragone',gen:3,origins:['in'],bio:"Cindy's first husband and the father of Gina, Tony, and Elaina.",spouses:['cynthia'],children:['gina_r','anthony_r','elaina_m']},
+    janice:{name:'Janice (Gosselin) Hebert',gen:3,place:'Springfield, MA',origins:['fc','irish','polish'],
+      bio:"Derek's aunt. In his last years Russell lived with Janice's family. She and her husband Daniel Hebert are of Springfield.",
+      parents:['russell_j','michaeline'],spouses:['daniel_h'],children:['mary_h']},
+    rusty:{name:'Russell \u201CRusty\u201D Gosselin',gen:3,place:'Houston, TX',origins:['fc','irish','polish'],
+      bio:"Derek's uncle — the second Russell in the family, and easy to confuse with his father. He and his wife Patty settled in Houston and raised four children.",
+      parents:['russell_j','michaeline'],spouses:['patty','kathy'],children:['laura_g','paul_g','christel_h','rebecca_g']},
+    robert:{name:'Robert Thomas Gosselin',gen:3,born:'1949',died:'2025',life:'Nov 15, 1949 \u2013 Sep 6, 2025',place:'Holyoke \u2192 Agawam, MA',origins:['fc','irish','polish'],tags:['USMC \u00B7 USPS','Golfer'],
+      bio:"Derek's father. Born in Holyoke, he served in the U.S. Marine Corps and then spent his career at the U.S. Postal Service. His free time went to the golf course — much of it in the Post Office League, with family and friends.",
+      parents:['russell_j','michaeline'],children:['derek','sheila']},
+    glenn:{name:'Glenn Gosselin',gen:3,place:'East Granby, CT',origins:['fc','irish','polish'],
+      bio:"Derek's uncle. He and his wife Colleen live in East Granby, Connecticut.",
+      parents:['russell_j','michaeline'],spouses:['colleen'],children:['chloe_g','nicole_g']},
+    brian_h:{name:'Brian Hebert',gen:3,place:'Springfield, MA',origins:['in'],bio:"Married Cynthia (Cindy).",spouses:['cynthia']},
+    daniel_h:{name:'Daniel Hebert',gen:3,place:'Springfield, MA',origins:['in'],bio:"Married Janice. Whether Brian and Daniel Hebert were themselves brothers is an open question in the tree.",spouses:['janice']},
+    patty:{name:'Patricia “Patty” Gosselin',gen:3,origins:['in'],bio:"Rusty's first wife and the mother of his four children — Laura, Paul, Christel, and Rebecca.",spouses:['rusty']},
+    kathy:{name:'Kathy Gosselin',gen:3,place:'Houston, TX',origins:['in'],tags:['Deceased'],bio:"Rusty's second wife, in Houston, who has since passed away. His four children are all from his first marriage, to Patty.",spouses:['rusty']},
+    colleen:{name:'Colleen Gosselin',gen:3,place:'East Granby, CT',origins:['in'],bio:"Married Glenn.",spouses:['glenn']},
+
+    // ---- Generation IV : Derek & his cousins ----
+    derek:{name:'Derek Gosselin',gen:4,born:'1979',life:'born Jul 9, 1979',place:'Holyoke \u2192 East Longmeadow, MA',origins:['fc','irish','polish'],you:true,
+      bio:"You — the one building this register. Born in Holyoke; lives in East Longmeadow with your wife, Kelly.",
+      parents:['robert'],spouses:['kelly']},
+    sheila:{name:'Sheila (Gosselin) Forgue',gen:4,place:'Agawam, MA',origins:['fc','irish','polish'],
+      bio:"Derek's sister. She and her husband Jonathan Forgue live in Agawam and have three sons.",
+      parents:['robert'],spouses:['jonathan_f'],children:['evan_f','jackson_f','cooper_f']},
+    kelly:{name:'Kelly Gosselin',gen:4,place:'East Longmeadow, MA',origins:['in'],bio:"Derek's wife.",spouses:['derek']},
+    jonathan_f:{name:'Jonathan Forgue',gen:4,place:'Agawam, MA',origins:['in'],bio:"Married Sheila; father of Evan, Jackson, and Cooper.",spouses:['sheila'],children:['evan_f','jackson_f','cooper_f']},
+    gina_r:{name:'Gina Ragone',gen:4,origins:['fc','irish','polish'],bio:"Cindy's daughter; Derek's cousin.",parents:['cynthia','rocky_ragone']},
+    anthony_r:{name:'Anthony \u201CTony\u201D Ragone',gen:4,origins:['fc','irish','polish'],bio:"Cindy's son; Derek's cousin.",parents:['cynthia','rocky_ragone']},
+    elaina_m:{name:'Elaina Morales',gen:4,origins:['fc','irish','polish'],bio:"Cindy's daughter and Derek's cousin; mother of three.",parents:['cynthia','rocky_ragone'],children:['keisha_m','nathan_m','jaden_m']},
+    laura_g:{name:'Laura (Gosselin) Grant',gen:4,origins:['fc','irish','polish'],bio:"Rusty and Patty's daughter and Derek's cousin; mother of three. She was married to Darrell “DJ” Grant, and they have since divorced.",parents:['rusty','patty'],spouses:['dj_grant'],children:['jacob_g','siobhan_g','sara_g']},
+    dj_grant:{name:'Darrell “DJ” Grant',gen:4,origins:['in'],tags:['Divorced'],bio:"Laura's former husband and the father of Jacob, Siobhan, and Sara; he and Laura have since divorced.",spouses:['laura_g'],children:['jacob_g','siobhan_g','sara_g']},
+    paul_g:{name:'Paul Gosselin',gen:4,origins:['fc','irish','polish'],bio:"Rusty and Patty's son and Derek's cousin. He and his wife Jennifer “Jen” are still married.",parents:['rusty','patty'],spouses:['jen'],children:['paul_g_jr']},
+    jen:{name:'Jennifer “Jen” Gosselin',gen:4,origins:['in'],bio:"Paul's wife and the mother of his children.",spouses:['paul_g'],children:['paul_g_jr']},
+    christel_h:{name:'Christel (Gosselin) Harju',gen:4,origins:['fc','irish','polish'],bio:"Rusty and Patty's daughter and Derek's cousin. Married Bill Harju.",parents:['rusty','patty'],spouses:['bill_h'],children:['william_h','carolyn_h']},
+    rebecca_g:{name:'Rebecca \u201CBecky\u201D Gosselin',gen:4,origins:['fc','irish','polish'],bio:"Rusty and Patty's daughter and Derek's cousin. She has three children — sons Nathan and Nicholas with Jason Hutchins, and a son, Landon, with her fiancé Rene.",parents:['rusty','patty'],spouses:['rene'],children:['nathan_h','nicholas_h','landon']},
+    jason_hutchins:{name:'Jason Hutchins',gen:4,origins:['in'],bio:"Father of Rebecca's sons, Nathan and Nicholas.",children:['nathan_h','nicholas_h']},
+    rene:{name:'Rene Hayes',gen:4,origins:['in'],tags:['Fiancé'],bio:"Rebecca's fiancé and the father of Landon.",spouses:['rebecca_g'],children:['landon']},
+    nathan_h:{name:'Nathan Hutchins',gen:5,origins:['fc','irish','polish'],bio:"Rebecca and Jason's son.",parents:['rebecca_g','jason_hutchins']},
+    nicholas_h:{name:'Nicholas Hutchins',gen:5,origins:['fc','irish','polish'],bio:"Rebecca and Jason's son.",parents:['rebecca_g','jason_hutchins']},
+    landon:{name:'Landon Hayes',gen:5,origins:['fc','irish','polish'],bio:"Rebecca and Rene's son.",parents:['rebecca_g','rene']},
+    bill_h:{name:'Bill Harju',gen:4,origins:['in'],bio:"Married Christel; father of William and Carolyn.",spouses:['christel_h'],children:['william_h','carolyn_h']},
+    mary_h:{name:'Mary Hebert',gen:4,origins:['fc','irish','polish'],bio:"Janice's daughter; Derek's cousin.",parents:['janice']},
+    chloe_g:{name:'Chloe Gosselin',gen:4,origins:['fc','irish','polish'],bio:"Glenn's daughter; Derek's cousin.",parents:['glenn']},
+    nicole_g:{name:'Nicole Gosselin',gen:4,origins:['fc','irish','polish'],bio:"Glenn's daughter; Derek's cousin.",parents:['glenn']},
+
+    // ---- Generation V : great-grandchildren ----
+    evan_f:{name:'Evan Forgue',gen:5,origins:['fc','irish','polish'],bio:"Sheila and Jonathan's son; Derek's nephew.",parents:['sheila','jonathan_f']},
+    jackson_f:{name:'Jackson Forgue',gen:5,origins:['fc','irish','polish'],bio:"Sheila and Jonathan's son; Derek's nephew.",parents:['sheila','jonathan_f']},
+    cooper_f:{name:'Cooper Forgue',gen:5,origins:['fc','irish','polish'],bio:"Sheila and Jonathan's son; Derek's nephew.",parents:['sheila','jonathan_f']},
+    keisha_m:{name:'Keisha Morales',gen:5,origins:['fc','irish','polish'],bio:"Elaina's child.",parents:['elaina_m']},
+    nathan_m:{name:'Nathan Morales',gen:5,origins:['fc','irish','polish'],bio:"Elaina's child.",parents:['elaina_m']},
+    jaden_m:{name:'Jaden Morales',gen:5,origins:['fc','irish','polish'],bio:"Elaina's child.",parents:['elaina_m']},
+    jacob_g:{name:'Jacob Grant',gen:5,origins:['fc','irish','polish'],bio:"Laura's child.",parents:['laura_g','dj_grant']},
+    siobhan_g:{name:'Siobhan Grant',gen:5,origins:['fc','irish','polish'],bio:"Laura's child.",parents:['laura_g','dj_grant']},
+    sara_g:{name:'Sara Grant',gen:5,origins:['fc','irish','polish'],bio:"Laura's child.",parents:['laura_g','dj_grant']},
+    paul_g_jr:{name:'Paul Gosselin',gen:5,origins:['fc','irish','polish'],bio:"Paul and Jen's son (the younger Paul in the family).",parents:['paul_g','jen']},
+    william_h:{name:'William Harju',gen:5,origins:['fc','irish','polish'],bio:"Christel and Bill's child.",parents:['christel_h','bill_h']},
+    carolyn_h:{name:'Carolyn Harju',gen:5,origins:['fc','irish','polish'],bio:"Christel and Bill's child.",parents:['christel_h','bill_h']}
+  };
+
+  // Tree structure. Each origin runs as an ancestral spine from the immigrant founder
+  // down into the living family; the Irish & Midura spines converge via crosslinks (↗).
+  var TREE = [
+    // === French-Canadian (Gosselin): Normandy → Québec → Lynn → the living family ===
+    { id:'gabriel', spouse:'francoise_lelievre', note:'Norman immigrant · to New France c.1650', children:[
+    { id:'francois_g8', spouse:'francoise_labrecque', children:[
+    { id:'ignace_g', spouse:'marie_isabel', children:[
+    { id:'josephignace', spouse:'marie_guillemette', children:[
+    { id:'jacques_g', spouse:'marie_roy', children:[
+    { id:'francois_g4', spouse:'emerentienne', children:[
+    { id:'narcisse', spouse:'marie_thibeault', note:'Direct line of 14 children: Isaïe', children:[
+    { id:'isaie', spouse:'marie_parent', note:'Emigrated to Lynn, MA, 1886 · direct line: Henry', children:[
+      { id:'henry', spouse:'katherine', children:[
+        { id:'russell_j', spouse:'michaeline', children:[
+          { id:'elizabeth' },
+          { id:'cynthia', spouse:'rocky_ragone', children:[
+            { id:'gina_r' }, { id:'anthony_r' },
+            { id:'elaina_m', children:[ {id:'keisha_m'},{id:'nathan_m'},{id:'jaden_m'} ] }
+          ]},
+          { id:'janice', spouse:'daniel_h', children:[ { id:'mary_h' } ] },
+          { id:'rusty', spouse:'patty', children:[
+            { id:'laura_g', spouse:'dj_grant', children:[ {id:'jacob_g'},{id:'siobhan_g'},{id:'sara_g'} ] },
+            { id:'paul_g', spouse:'jen', children:[ {id:'paul_g_jr'} ] },
+            { id:'christel_h', spouse:'bill_h', children:[ {id:'william_h'},{id:'carolyn_h'} ] },
+            { id:'rebecca_g', spouse:'rene', children:[ {id:'nathan_h'},{id:'nicholas_h'},{id:'landon'} ] }
+          ]},
+          { id:'robert', children:[
+            { id:'derek', spouse:'kelly' },
+            { id:'sheila', spouse:'jonathan_f', children:[ {id:'evan_f'},{id:'jackson_f'},{id:'cooper_f'} ] }
+          ]},
+          { id:'glenn', spouse:'colleen', children:[ {id:'chloe_g'},{id:'nicole_g'} ] }
+        ]},
+        { id:'marjorie_k' }, { id:'mildred_g' }, { id:'evelyn_g' }
+      ]}
+    ]}]}]}]}]}]}]}]},
+    // === Irish (Brennan): Ireland → Boston, converging at Katheryne ===
+    { id:'john_brennan', spouse:'catherine_oconnor', note:'Ireland', children:[
+      { id:'jeremiah', spouse:'catherine_renn', note:'Immigrant from Ireland, b.1860', children:[
+        { id:'katherine', spouse:'henry', crosslink:true }
+      ]}
+    ]},
+    // === Polish (Lonczak): Galicia → Chicopee → twelve children ===
+    { id:'michal_l', spouse:'agnieszka', note:'Piątkowiec, Zgórsko parish · Galicia', children:[
+      { id:'ludwik', spouse:'maria', note:'Twelve children', children:[
+        { id:'michaeline', spouse:'russell_j', crosslink:true },
+        { id:'michael_l' }, { id:'edward_l' }, { id:'walter_l' }, { id:'stanley_l' },
+        { id:'frederick_l' }, { id:'adam_l' }, { id:'angela_b' }, { id:'joanna_l' },
+        { id:'june_m' }, { id:'jean_c' }, { id:'helen_k' }
+      ]}
+    ]},
+    // === Polish (Midura): Galicia, converging at Mary ===
+    { id:'michael_midura', spouse:'mary_siekirka', note:'Galicia', children:[
+      { id:'maria', spouse:'ludwik', crosslink:true }
+    ]}
+  ];
+
+  var GEN_ROMAN = {1:'I',2:'II',3:'III',4:'IV',5:'V'};
+  var ORIGIN_LABEL = {fc:'French‑Canadian',irish:'Irish',polish:'Polish',in:'Married in'};
+
+  // ---------- helpers ----------
+  var $ = function(s,el){return (el||document).querySelector(s);};
+  var rowIndex = {}; // id -> row DOM node (first occurrence)
+
+  function firstName(str){ return str; }
+
+  function makeDots(origins){
+    var wrap=document.createElement('span'); wrap.className='dots';
+    (origins||[]).forEach(function(o){
+      var d=document.createElement('i'); d.className='dot dot--'+o; d.title=ORIGIN_LABEL[o]||''; wrap.appendChild(d);
+    });
+    return wrap;
+  }
+
+  function siblingsOf(id){
+    var p=P[id]; if(!p||!p.parents) return [];
+    var set={}, out=[];
+    p.parents.forEach(function(par){
+      var pp=P[par]; if(pp&&pp.children) pp.children.forEach(function(c){ if(c!==id && !set[c]){set[c]=1; out.push(c);} });
+    });
+    return out;
+  }
+
+  // ---------- build tree ----------
+  function buildNode(node){
+    var p=P[node.id];
+    var li=document.createElement('li'); li.className='node';
+    var row=document.createElement('div'); row.className='row';
+
+    var hasKids = node.children && node.children.length;
+    var toggle=document.createElement('button');
+    toggle.className='row__toggle'+(hasKids?'':' spacer');
+    toggle.setAttribute('aria-hidden', hasKids?'false':'true');
+    toggle.innerHTML = hasKids ? '\u25BC' : '';
+    if(hasKids){
+      toggle.setAttribute('aria-label','Collapse or expand');
+      toggle.addEventListener('click',function(e){ e.stopPropagation(); li.classList.toggle('collapsed'); });
+    }
+    row.appendChild(toggle);
+
+    var btn=document.createElement('button');
+    btn.className='row__name'; btn.setAttribute('data-id',node.id);
+
+    btn.appendChild(makeDots(p.origins));
+    var nm=document.createElement('span'); nm.textContent=firstName(p.name); btn.appendChild(nm);
+
+    if(p.born||p.died){
+      var yr=document.createElement('span'); yr.className='yr';
+      if(p.born && p.died) yr.textContent = p.born+'\u2013'+p.died;
+      else if(p.born) yr.textContent = 'b. '+p.born;
+      else yr.textContent = 'd. '+p.died;
+      btn.appendChild(yr);
+    }
+    if(p.you){ var y=document.createElement('span'); y.className='you-tag'; y.textContent='You'; btn.appendChild(y); }
+
+    if(node.spouse){
+      var sp=document.createElement('span'); sp.className='spouse';
+      sp.innerHTML='\u2295 '; // conjoined mark
+      var spb=document.createElement('b'); spb.textContent=shortName(P[node.spouse].name);
+      sp.appendChild(spb);
+      if(node.crosslink){ var cl=document.createElement('span'); cl.textContent=' \u2197'; cl.title='Her line continues under the Gosselin branch'; sp.appendChild(cl); }
+      // clicking spouse selects spouse
+      sp.style.cursor='pointer';
+      sp.addEventListener('click',function(e){ e.stopPropagation(); select(node.spouse); });
+      btn.appendChild(sp);
+    }
+
+    btn.addEventListener('click',function(){ select(node.id); });
+    row.appendChild(btn);
+    li.appendChild(row);
+
+    if(!rowIndex[node.id]) rowIndex[node.id]=li;
+
+    if(hasKids){
+      var ul=document.createElement('ul');
+      if(node.note){ var n=document.createElement('li'); n.className='root-note'; n.textContent=node.note; ul.appendChild(n); }
+      node.children.forEach(function(ch){ ul.appendChild(buildNode(ch)); });
+      li.appendChild(ul);
+    }
+    return li;
+  }
+
+  function shortName(full){
+    // Trim parenthetical maiden + surname clutter for compact spouse display
+    return full.replace(/\s*\(.*?\)\s*/g,' ').replace(/\u201C.*?\u201D/g,'').replace(/\s+/g,' ').trim();
+  }
+
+  function renderTree(){
+    var root=$('#tree'); root.innerHTML='';
+    TREE.forEach(function(t){ root.appendChild(buildNode(t)); });
+  }
+
+  // ---------- record card ----------
+  function chip(id){
+    var p=P[id]; if(!p) return null;
+    var b=document.createElement('button'); b.className='chip'; b.setAttribute('data-id',id);
+    var dd=document.createElement('span'); dd.className='chip-dots';
+    (p.origins||[]).forEach(function(o){ var d=document.createElement('i'); d.className='dot dot--'+o; dd.appendChild(d); });
+    b.appendChild(dd);
+    var t=document.createElement('span'); t.textContent=shortName(p.name); b.appendChild(t);
+    b.addEventListener('click',function(){ select(id); });
+    return b;
+  }
+
+  function relGroup(label, ids){
+    if(!ids||!ids.length) return null;
+    var g=document.createElement('div'); g.className='rel__group';
+    var l=document.createElement('p'); l.className='rel__label'; l.textContent=label; g.appendChild(l);
+    var chips=document.createElement('div'); chips.className='chips';
+    ids.forEach(function(id){ var c=chip(id); if(c) chips.appendChild(c); });
+    g.appendChild(chips); return g;
+  }
+
+  function select(id){
+    var p=P[id]; if(!p) return;
+    var card=$('#card'); card.innerHTML='';
+
+    var gen=document.createElement('p'); gen.className='card__gen';
+    gen.textContent = p.genLabel || ('Generation '+(GEN_ROMAN[p.gen]||p.gen));
+    card.appendChild(gen);
+
+    var h=document.createElement('h2'); h.className='card__name'; h.textContent=p.name; card.appendChild(h);
+
+    if(p.life){ var lf=document.createElement('p'); lf.className='card__life'; lf.textContent=p.life; card.appendChild(lf); }
+    else if(p.born){ var lf2=document.createElement('p'); lf2.className='card__life'; lf2.textContent='born '+p.born; card.appendChild(lf2); }
+
+    if(p.place){ var pl=document.createElement('p'); pl.className='card__place'; pl.textContent=p.place; card.appendChild(pl); }
+
+    // badges: origins + tags
+    var badges=document.createElement('div'); badges.className='badges';
+    (p.origins||[]).forEach(function(o){
+      var s=document.createElement('span');
+      s.className='badge badge--origin '+(o==='in'?'in':o);
+      s.textContent=ORIGIN_LABEL[o];
+      badges.appendChild(s);
+    });
+    (p.tags||[]).forEach(function(t){ var s=document.createElement('span'); s.className='badge'; s.textContent=t; badges.appendChild(s); });
+    if(badges.children.length) card.appendChild(badges);
+
+    var dbtn=document.createElement('button');
+    dbtn.className='card__diagram-btn'; dbtn.type='button';
+    dbtn.textContent='◇ View family tree diagram';
+    dbtn.addEventListener('click',function(){ openDiagram(id); });
+    card.appendChild(dbtn);
+
+    if(p.bio){ var bio=document.createElement('p'); bio.className='card__bio'+(p.frontier?' frontier':''); bio.textContent=p.bio; card.appendChild(bio); }
+
+    // relations
+    var rel=document.createElement('div'); rel.className='rel';
+    var sibs=siblingsOf(id);
+    var groups=[
+      relGroup('Parents', p.parents),
+      relGroup(p.spouses&&p.spouses.length>1?'Spouses':'Spouse', p.spouses),
+      relGroup('Children', p.children),
+      relGroup('Siblings', sibs)
+    ].filter(Boolean);
+    if(groups.length){ groups.forEach(function(g){ rel.appendChild(g); }); }
+    else { var e=document.createElement('p'); e.className='rel__empty'; e.textContent='No further relatives recorded.'; rel.appendChild(e); }
+    card.appendChild(rel);
+
+    // records & sources
+    var recEl=renderSources(id); if(recEl) card.appendChild(recEl);
+
+    // active state in tree
+    var prev=document.querySelector('.node.active'); if(prev) prev.classList.remove('active');
+    var li=rowIndex[id];
+    if(li){
+      li.classList.add('active');
+      // expand ancestors
+      var a=li.parentNode;
+      while(a && a!==document){ if(a.classList && a.classList.contains('node')) a.classList.remove('collapsed'); a=a.parentNode; }
+    }
+
+    // hash (shareable)
+    if(history.replaceState){ history.replaceState(null,'','#'+id); } else { location.hash=id; }
+
+    // mobile: switch to record view and scroll up
+    var panes=$('.panes');
+    if(window.matchMedia('(max-width:820px)').matches){
+      setView('card');
+    } else if(li){
+      li.scrollIntoView({block:'nearest'});
+    }
+    $('#card').scrollTop=0;
+    document.querySelector('.card-pane').scrollTop=0;
+  }
+
+  // ---------- family-tree diagram ----------
+  var DIAG_C={fc:'#3F6B50',irish:'#46617E',polish:'#7A4A63',in:'#8A8B7C'};
+  function diagEsc(s){return (s||'').replace(/[&<>]/g,function(c){return c==='&'?'&amp;':c==='<'?'&lt;':'&gt;';});}
+  function diagName(id){ var nm=shortName((P[id]||{}).name||id); return nm.length>26?nm.slice(0,25)+'…':nm; }
+  function diagYears(id){ var p=P[id]||{}; if(p.born&&p.died)return p.born+'–'+p.died; if(p.born)return 'b. '+p.born; if(p.died)return 'd. '+p.died; return ''; }
+
+  function renderDiagram(rootId){
+    var boxW=166,boxH=48,gapX=22,rowH=104;
+    var nodes={},edges=[];
+    // descendants (downward)
+    var dLeaf={v:0},seenD={};
+    function down(id,depth){
+      if(seenD[id])return; seenD[id]=1;
+      var kids=((P[id]||{}).children||[]).filter(function(c){return P[c];});
+      kids=kids.filter(function(c,i){return kids.indexOf(c)===i;});
+      var x;
+      if(!kids.length){x=dLeaf.v;dLeaf.v+=boxW+gapX;}
+      else{var cs=[];kids.forEach(function(c){down(c,depth+1);edges.push({p:id,c:c});cs.push(nodes[c].x);});x=(cs[0]+cs[cs.length-1])/2;}
+      nodes[id]={id:id,x:x,depth:depth};
+    }
+    down(rootId,0);
+    var rootDx=nodes[rootId].x;
+    // ancestors (upward) in their own coordinate space, then shifted to align the root
+    var anodes={},aLeaf={v:0},seenA={};
+    function up(id,depth){
+      if(seenA[id])return; seenA[id]=1;
+      var par=((P[id]||{}).parents||[]).filter(function(x){return P[x];});
+      par=par.filter(function(c,i){return par.indexOf(c)===i;});
+      var x;
+      if(!par.length){x=aLeaf.v;aLeaf.v+=boxW+gapX;}
+      else{var cs=[];par.forEach(function(pa){up(pa,depth-1);edges.push({p:pa,c:id});cs.push(anodes[pa].x);});x=(cs[0]+cs[cs.length-1])/2;}
+      anodes[id]={id:id,x:x,depth:depth};
+    }
+    up(rootId,0);
+    var shift=rootDx-anodes[rootId].x;
+    Object.keys(anodes).forEach(function(id){ if(id!==rootId) nodes[id]={id:id,x:anodes[id].x+shift,depth:anodes[id].depth}; });
+    // spouse(s) of the root, placed beside them
+    var spouses=((P[rootId]||{}).spouses||[]).filter(function(s){return P[s]&&!nodes[s];});
+    spouses.forEach(function(s,i){ nodes[s]={id:s,x:nodes[rootId].x+(i+1)*(boxW+gapX),depth:0,spouse:true}; });
+    // extents
+    var ids=Object.keys(nodes),minX=1e9,maxX=-1e9,minD=1e9,maxD=-1e9;
+    ids.forEach(function(id){var n=nodes[id];minX=Math.min(minX,n.x);maxX=Math.max(maxX,n.x);minD=Math.min(minD,n.depth);maxD=Math.max(maxD,n.depth);});
+    var pad=26;
+    function X(n){return (n.x-minX)+pad;} function Y(n){return (n.depth-minD)*rowH+pad;}
+    var W=Math.max(320,(maxX-minX)+boxW+pad*2), H=(maxD-minD)*rowH+boxH+pad*2;
+    var s=['<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg">'];
+    edges.forEach(function(e){
+      if(!nodes[e.p]||!nodes[e.c])return;
+      var a=nodes[e.p],b=nodes[e.c];
+      var x1=X(a)+boxW/2,y1=Y(a)+boxH,x2=X(b)+boxW/2,y2=Y(b),my=(y1+y2)/2;
+      s.push('<path d="M'+x1+' '+y1+' V'+my+' H'+x2+' V'+y2+'" fill="none" stroke="rgba(38,49,43,.30)" stroke-width="1.2"/>');
+    });
+    spouses.forEach(function(sp){var nr=nodes[rootId],ns=nodes[sp],y=Y(nr)+boxH/2; s.push('<line x1="'+(X(nr)+boxW)+'" y1="'+y+'" x2="'+X(ns)+'" y2="'+y+'" stroke="#8A2B2A" stroke-width="1.4"/>');});
+    ids.forEach(function(id){
+      var n=nodes[id],p=P[id]||{},x=X(n),y=Y(n),isRoot=(id===rootId);
+      var origin=(p.origins&&p.origins[0])||'in';
+      var fill=isRoot?'#F0DBD7':(n.spouse?'#E4DECB':'#F6F2E6');
+      var stroke=isRoot?'#8A2B2A':'rgba(38,49,43,.25)';
+      s.push('<g data-diag-id="'+id+'" style="cursor:pointer">');
+      s.push('<rect x="'+x+'" y="'+y+'" width="'+boxW+'" height="'+boxH+'" rx="3" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+(isRoot?2:1)+'"/>');
+      s.push('<circle cx="'+(x+11)+'" cy="'+(y+13)+'" r="3.3" fill="'+(DIAG_C[origin]||DIAG_C.in)+'"/>');
+      s.push('<text x="'+(x+boxW/2)+'" y="'+(y+20)+'" text-anchor="middle" font-family="Spectral,Georgia,serif" font-size="12.5" fill="#26312B">'+diagEsc(diagName(id))+'</text>');
+      var yr=diagYears(id);
+      if(yr)s.push('<text x="'+(x+boxW/2)+'" y="'+(y+36)+'" text-anchor="middle" font-family="Space Mono,monospace" font-size="10" fill="#7C7D6E">'+diagEsc(yr)+'</text>');
+      s.push('</g>');
+    });
+    s.push('</svg>');
+    return s.join('');
+  }
+  function openDiagram(rootId){
+    if(!P[rootId])return;
+    document.getElementById('tdmTitle').textContent='Family tree — '+shortName(P[rootId].name);
+    var body=document.getElementById('tdmBody');
+    body.innerHTML=renderDiagram(rootId);
+    body.scrollTop=0; body.scrollLeft=0;
+    document.getElementById('treeDiagramModal').classList.add('open');
+    body.querySelectorAll('g[data-diag-id]').forEach(function(g){
+      g.addEventListener('click',function(){ var nid=g.getAttribute('data-diag-id'); if(P[nid]){ select(nid); openDiagram(nid); } });
+    });
+  }
+  function closeDiagram(){ document.getElementById('treeDiagramModal').classList.remove('open'); }
+
+  // ---------- records & sources ----------
+  // FamilySearch person IDs — their /sources page holds every attached record + document image.
+  var FSID={
+    russell_j:'GMQP-N6W', michaeline:'GTP1-F3B', henry:'GMQP-FY7', katherine:'GMQP-6PX',
+    isaie:'2WS9-BHL', marie_parent:'2WS9-BH5', narcisse:'LB7W-XBX', marie_thibeault:'LV53-TVB',
+    francois_g4:'GZ24-GN9', emerentienne:'LV53-BMF', jacques_g:'GVMP-P4G', marie_roy:'KH2C-9KN',
+    josephignace:'LDD1-Z6N', marie_guillemette:'PW3S-S8S', ignace_g:'LDD6-3XP', marie_isabel:'GHMJ-SDX',
+    francois_g8:'LVFQ-65G', francoise_labrecque:'L8SK-MST', gabriel:'L7FH-H5N', francoise_lelievre:'LZVW-DK3',
+    nicolas:'LTM4-3VM', marguerite_dubreal:'L1CR-3ZW',
+    jeremiah:'KG2H-H6R', catherine_renn:'27M2-Q4Q', john_brennan:'MTYW-RDB', catherine_oconnor:'9WBH-7K4',
+    ludwik:'LKQR-351', maria:'LKQR-QS1', michael_midura:'GKS5-R1S', mary_siekirka:'GKW7-5W8'
+  };
+  var SRC_LABEL={census:'Census',birth:'Birth',death:'Death',marriage:'Marriage',naturalization:'Naturalization',baptism:'Baptism',burial:'Burial',photo:'Photo',profile:'FamilySearch'};
+  // Specific documents located this session. `img` (a data-URI) can be added to embed the image inline.
+  var SOURCES={
+    russell_j:[{t:'census',label:'1920 U.S. Census — Dover, NH (parents Harry L. & Catherine)',url:'https://www.familysearch.org/ark:/61903/1:1:MH8X-TM1'}],
+    jeremiah:[
+      {t:'naturalization',label:'1891 Naturalization petition — born Co. Kerry, Ireland',url:'https://www.familysearch.org/ark:/61903/1:1:65M7-DMPB'},
+      {t:'death',label:'1920 Death record — Boston (parents John Brennan & Catherine Connor)',url:'https://www.familysearch.org/ark:/61903/1:1:23TJ-G7K'}
+    ],
+    ludwik:[{t:'baptism',label:'1884 Baptism — Zgórsko parish (parents Michał Lonczak & Agnieszka Puła)',url:'https://www.familysearch.org/ark:/61903/1:1:X5QG-P3X'}],
+    michal_l:[{t:'burial',label:'1920 Burial — Zgórsko, age 74',url:'https://www.familysearch.org/ark:/61903/1:1:6VQG-7HTL'}]
+  };
+  function renderSources(id){
+    var fs=FSID[id], recs=SOURCES[id]||[];
+    if(!fs && !recs.length) return null;
+    var wrap=document.createElement('div'); wrap.className='rec';
+    var h=document.createElement('p'); h.className='rec__label'; h.textContent='Records & sources'; wrap.appendChild(h);
+    recs.forEach(function(s){
+      var a=document.createElement('a'); a.className='rec__item'; a.href=s.url; a.target='_blank'; a.rel='noopener';
+      var tag=document.createElement('span'); tag.className='rec__tag rec__tag--'+s.t; tag.textContent=SRC_LABEL[s.t]||s.t; a.appendChild(tag);
+      var tx=document.createElement('span'); tx.className='rec__txt'; tx.textContent=s.label; a.appendChild(tx);
+      wrap.appendChild(a);
+      if(s.img){
+        var im=document.createElement('img'); im.className='rec__thumb'; im.src=s.img; im.alt=s.label; im.loading='lazy';
+        im.addEventListener('click',function(){ openLightbox(s.img,s.label,s.url); });
+        wrap.appendChild(im);
+      }
+    });
+    if(fs){
+      var a2=document.createElement('a'); a2.className='rec__item'; a2.href='https://www.familysearch.org/tree/person/sources/'+fs; a2.target='_blank'; a2.rel='noopener';
+      var tag2=document.createElement('span'); tag2.className='rec__tag rec__tag--profile'; tag2.textContent='FamilySearch'; a2.appendChild(tag2);
+      var tx2=document.createElement('span'); tx2.className='rec__txt'; tx2.textContent='All attached records & document images →'; a2.appendChild(tx2);
+      wrap.appendChild(a2);
+    }
+    return wrap;
+  }
+  function openLightbox(src,cap,url){
+    document.getElementById('lbImg').src=src;
+    document.getElementById('lbCap').textContent=cap||'';
+    var link=document.getElementById('lbLink'); if(url){link.href=url;link.style.display='';}else{link.style.display='none';}
+    document.getElementById('imgLightbox').classList.add('open');
+  }
+  function closeLightbox(){ document.getElementById('imgLightbox').classList.remove('open'); document.getElementById('lbImg').src=''; }
+
+  // ---------- search ----------
+  function runSearch(q){
+    q=(q||'').trim().toLowerCase();
+    var nodes=document.querySelectorAll('#tree .node');
+    if(!q){ nodes.forEach(function(n){ n.classList.remove('hidden','dim'); }); return; }
+    // hide all, then reveal matches + ancestors
+    nodes.forEach(function(n){ n.classList.add('hidden'); });
+    nodes.forEach(function(n){
+      var btn=n.querySelector(':scope > .row > .row__name');
+      var id=btn && btn.getAttribute('data-id');
+      var p=id&&P[id];
+      if(p && p.name.toLowerCase().indexOf(q)>-1){
+        var a=n;
+        while(a && a.classList && a.classList.contains('node')){
+          a.classList.remove('hidden','collapsed');
+          // climb to parent node
+          var up=a.parentNode; while(up && up!==document && !(up.classList&&up.classList.contains('node'))) up=up.parentNode;
+          a=up;
+        }
+      }
+    });
+  }
+
+  // ---------- mobile view ----------
+  function setView(v){
+    $('.panes').setAttribute('data-view',v);
+    document.querySelectorAll('.tabs button').forEach(function(b){
+      b.setAttribute('aria-selected', b.getAttribute('data-view')===v ? 'true':'false');
+    });
+  }
+
+  // ---------- init ----------
+  renderTree();
+  $('#count').textContent=Object.keys(P).length;
+
+  document.querySelectorAll('.tabs button').forEach(function(b){
+    b.addEventListener('click',function(){ setView(b.getAttribute('data-view')); });
+  });
+  $('#search').addEventListener('input',function(e){ runSearch(e.target.value); });
+  $('#expandAll').addEventListener('click',function(){ document.querySelectorAll('#tree .node.collapsed').forEach(function(n){n.classList.remove('collapsed');}); });
+  $('#collapseAll').addEventListener('click',function(){
+    // collapse everything except the two roots
+    document.querySelectorAll('#tree > .node .node').forEach(function(n){ if(n.querySelector(':scope > ul')) n.classList.add('collapsed'); });
+  });
+
+  // family-tree diagram modal
+  document.getElementById('tdmClose').addEventListener('click',closeDiagram);
+  document.querySelector('#treeDiagramModal .tdm__backdrop').addEventListener('click',closeDiagram);
+  document.getElementById('lbClose').addEventListener('click',closeLightbox);
+  document.querySelector('#imgLightbox .lb__backdrop').addEventListener('click',closeLightbox);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'||e.keyCode===27){ closeLightbox(); closeDiagram(); } });
+
+  // start on hash or on Derek
+  var start=(location.hash||'').replace('#','');
+  if(!P[start]) start='derek';
+  select(start);
+  window.addEventListener('hashchange',function(){ var id=(location.hash||'').replace('#',''); if(P[id]) select(id); });
+})();
+</script>
+</body>
+</html>
